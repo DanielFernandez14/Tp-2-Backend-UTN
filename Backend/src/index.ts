@@ -1,6 +1,7 @@
 import express from 'express';
 import { connectMongoDB } from './config/mongo';
 import { Schema, model } from 'mongoose';
+import { Request, Response } from 'express';
 
 
 process.loadEnvFile()
@@ -19,8 +20,8 @@ const bookSchema = new Schema({
 const Book = model("Book", bookSchema);
 
 
-
 const app = express();
+app.use(express.json());
 
 const getAllBooks = async () => {
     try {
@@ -38,7 +39,7 @@ const getAllBooks = async () => {
     }
 }}
 
-app.get("/api/books", async (request, response): Promise<any> => {
+app.get("/api/books", async (request: Request, response: Response): Promise<any> => {
     try {
         const books = await Book.find();
         return response.json({
@@ -53,6 +54,32 @@ app.get("/api/books", async (request, response): Promise<any> => {
             message: err.message
     })
 }})
+
+app.post("/api/books", async (req: Request, res: Response): Promise<any> => {
+        try {
+            const body = req.body;
+            const { title, author, publishedYear, genre, available } = body;
+            if (!title || !author || !publishedYear || !genre) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Data invalida."
+                })}
+                const newBook = new Book({title,author,publishedYear,genre,available: available || true})
+                const savedBook = await newBook.save();
+                res.status(201).json({
+                    success: true,
+                    data: savedBook,
+                    message: "Libro creado exitosamente"
+            })
+            
+        } catch (error) {
+            const err = error as Error;
+            res.status(500).json({
+                success: false,
+                message: err.message
+            })
+        }
+})
 
 app.listen(PORT, () => {
     console.log(`✅ Servidor en escucha en el puerto http://localhost:${PORT}`)
