@@ -55,6 +55,33 @@ app.get("/api/books", async (request: Request, response: Response): Promise<any>
     })
 }})
 
+app.get("/api/books/:id", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const { id } = req.params;
+
+        const book = await Book.findById(id);
+
+    if (!book) {
+        return res.status(404).json({
+        success: false,
+        message: "Libro no encontrado"
+        });
+    }
+
+    res.json({
+        success: true,
+        data: book,
+        message: "Libro obtenido exitosamente"
+    });
+    } catch (error) {
+    const err = error as Error;
+    res.status(500).json({
+        success: false,
+        message: err.message
+    });
+    }
+});
+
 app.post("/api/books", async (req: Request, res: Response): Promise<any> => {
         try {
             const body = req.body;
@@ -99,6 +126,42 @@ app.delete("/api/books/:id", async (req: Request, res: Response): Promise<any> =
         });
     }
 })
+
+app.patch("/api/books/:id", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const { id } = req.params;
+        const body = req.body;
+
+    if (!body || Object.keys(body).length === 0) {
+        return res.status(400).json({
+        success: false,
+        message: "No se proporcionaron campos para actualizar."
+        });
+    }
+
+    const updatedBook = await Book.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+
+    if (!updatedBook) {
+        return res.status(404).json({
+        success: false,
+        message: "Libro no encontrado"
+        });
+    }
+
+    res.json({
+        success: true,
+        data: updatedBook,
+        message: "Libro actualizado exitosamente"
+    });
+    } catch (error) {
+    const err = error as Error;
+    res.status(500).json({
+        success: false,
+        message: err.message
+    });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`✅ Servidor en escucha en el puerto http://localhost:${PORT}`)
