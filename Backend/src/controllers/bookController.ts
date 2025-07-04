@@ -15,7 +15,8 @@ const getAllBooks = async (request: Request, response: Response): Promise<any> =
             success: false,
             message: err.message
     })
-}}
+    }
+}
 
 const getBookById = async (req: Request, res: Response): Promise<any> => {
     try {
@@ -41,7 +42,8 @@ const getBookById = async (req: Request, res: Response): Promise<any> => {
         success: false,
         message: err.message
     });
-}}
+    }
+}
 
 const createBook = async (req: Request, res: Response): Promise<any> => {
         try {
